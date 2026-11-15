@@ -77,7 +77,10 @@ export function useChat(questions: Question[], replay: ReplaySource) {
   const runReplay = useCallback(async (chatId: string, run: AgentRun, q: Question | undefined) => {
     const fail = (error: string) => patchRun(chatId, run.id, (r) => ({ ...r, status: 'error', error }));
     if (!q) return fail('Recorded mode can only replay the benchmark questions. Connect the local bridge to ask anything.');
-    const candidates = replay.runs.filter((r) => r.combos.includes(run.combo) && r.versions.includes(run.contextVersion));
+    // Prefer the unprompted runs: a review-prompt run answers a different instruction.
+    const candidates = replay.runs
+      .filter((r) => r.combos.includes(run.combo) && r.versions.includes(run.contextVersion))
+      .sort((a, b) => Number((a.variant ?? 'default') !== 'default') - Number((b.variant ?? 'default') !== 'default'));
     for (const summary of candidates) {
       const detail = await replay.loadRun(summary.runId).catch(() => null);
       const rec = detail?.results.find((x) => x.combo === run.combo && x.contextVersion === run.contextVersion && x.questionId === q.id);
