@@ -1,0 +1,11 @@
+node_modules/
+.work/
+state/
+ui/dist/
+ui/shots/
+runs/_scratch/
+runs/*.log
+runs/grok-probe.jsonl
+data/commerce.db
+*.tsbuildinfo
+.env*

@@ -1,0 +1,15 @@
+{
+  "name": "context-lab",
+  "private": true,
+  "type": "module",
+  "description": "Register context once, run it through any agent harness with any model, see what breaks.",
+  "scripts": {
+    "seed": "node --no-warnings data/seed.mjs",
+    "golden": "node --no-warnings eval/golden.mjs",
+    "run": "node --no-warnings harness/run.mjs",
+    "serve": "node --no-warnings server/server.mjs",
+    "snapshot": "node --no-warnings server/snapshot.mjs",
+    "test": "node --no-warnings --test \"test/*.test.mjs\""
+  },
+  "engines": { "node": ">=24" }
+}

@@ -1,0 +1,42 @@
+{
+  "runId": "2026-11-15T19-47-31-607Z-review1",
+  "finishedAt": "2026-11-15T19:51:26.752Z",
+  "cells": [
+    {
+      "combo": "codex:gpt-6.1-sol",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 30.5,
+      "medianInputTokens": 103515,
+      "medianOutputTokens": 553
+    },
+    {
+      "combo": "claude-code:gpt-6.1-sol@bridge",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 35.1,
+      "medianInputTokens": 29638,
+      "medianOutputTokens": 577
+    },
+    {
+      "combo": "claude-code:haiku",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 14.2,
+      "medianInputTokens": 27954,
+      "medianOutputTokens": 1426
+    }
+  ]
+}

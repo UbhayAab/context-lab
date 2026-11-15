@@ -1,0 +1,57 @@
+{
+  "runId": "2026-11-15T19-47-31-607Z-review1",
+  "startedAt": "2026-11-15T19:47:31.723Z",
+  "variant": "review",
+  "combos": [
+    {
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "via": null,
+      "effort": null,
+      "id": "codex:gpt-6.1-sol"
+    },
+    {
+      "harness": "claude-code",
+      "model": "gpt-6.1-sol",
+      "via": "bridge",
+      "effort": null,
+      "id": "claude-code:gpt-6.1-sol@bridge"
+    },
+    {
+      "harness": "claude-code",
+      "model": "haiku",
+      "via": null,
+      "effort": null,
+      "id": "claude-code:haiku"
+    }
+  ],
+  "versions": [
+    "1.0.0"
+  ],
+  "questions": [
+    "q01",
+    "q02",
+    "q03",
+    "q04",
+    "q05",
+    "q06",
+    "q07",
+    "q08",
+    "q09",
+    "q10",
+    "q11",
+    "q12"
+  ],
+  "dataset": {
+    "sha16": "72dcd63bf10abb6d"
+  },
+  "context": {
+    "1.0.0": {
+      "sha16": "d3313148b73bd7cf"
+    }
+  },
+  "clients": {
+    "claude": "2.1.325 (Claude Code)"
+  },
+  "scoring": "correct if |answer - golden| <= max(0.05, 0.01% of golden)"
+}

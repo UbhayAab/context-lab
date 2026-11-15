@@ -1,0 +1,102 @@
+{
+  "runId": "2026-11-15T19-33-59-424Z-matrix1",
+  "finishedAt": "2026-11-15T19:40:46.204Z",
+  "cells": [
+    {
+      "combo": "claude-code:haiku",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 14.9,
+      "medianInputTokens": 37823,
+      "medianOutputTokens": 1632
+    },
+    {
+      "combo": "claude-code:haiku",
+      "contextVersion": "1.1.0",
+      "n": 12,
+      "correct": 12,
+      "accuracy": 100,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 10.4,
+      "medianInputTokens": 27881,
+      "medianOutputTokens": 919
+    },
+    {
+      "combo": "claude-code:sonnet",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 12.1,
+      "medianInputTokens": 24834,
+      "medianOutputTokens": 850
+    },
+    {
+      "combo": "claude-code:sonnet",
+      "contextVersion": "1.1.0",
+      "n": 12,
+      "correct": 12,
+      "accuracy": 100,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 10.3,
+      "medianInputTokens": 24941,
+      "medianOutputTokens": 537
+    },
+    {
+      "combo": "codex:gpt-6.1-sol",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 23.7,
+      "medianInputTokens": 102974,
+      "medianOutputTokens": 368
+    },
+    {
+      "combo": "codex:gpt-6.1-sol",
+      "contextVersion": "1.1.0",
+      "n": 12,
+      "correct": 12,
+      "accuracy": 100,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 21,
+      "medianInputTokens": 82421,
+      "medianOutputTokens": 323
+    },
+    {
+      "combo": "claude-code:gpt-6.1-sol@bridge",
+      "contextVersion": "1.0.0",
+      "n": 12,
+      "correct": 0,
+      "accuracy": 0,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 23.8,
+      "medianInputTokens": 18866,
+      "medianOutputTokens": 426
+    },
+    {
+      "combo": "claude-code:gpt-6.1-sol@bridge",
+      "contextVersion": "1.1.0",
+      "n": 12,
+      "correct": 12,
+      "accuracy": 100,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 18.7,
+      "medianInputTokens": 18941,
+      "medianOutputTokens": 302
+    }
+  ]
+}
