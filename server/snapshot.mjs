@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contextPayload, feedbackPayload, listRuns, loadRun, questionsPayload } from './data.mjs';
+import { combinedPayload, consensusPayload, contextPayload, feedbackPayload, impactsPayload, listRuns, loadRun, questionsPayload } from './data.mjs';
 import { MIX_MATRIX, harnessStatus } from './harnesses.mjs';
 
 const DEFAULT_OUT = fileURLToPath(new URL('../ui/public/data/snapshot.json', import.meta.url));
@@ -24,6 +24,9 @@ export function buildSnapshot(runIds) {
     runDetails: Object.fromEntries(runs.map((r) => [r.runId, loadRun(r.runId)])),
     feedback: feedbackPayload(null, null, 'default'),
     feedbackReview: feedbackPayload(null, null, 'review'),
+    combined: combinedPayload(),
+    consensus: consensusPayload(),
+    impacts: impactsPayload(),
   };
 }
 

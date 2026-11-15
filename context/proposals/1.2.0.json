@@ -1,0 +1,39 @@
+{
+  "version": "1.2.0",
+  "basedOn": "1.0.0",
+  "status": "proposed",
+  "proposedBy": "claude-code:sonnet",
+  "createdAt": "2026-11-15T20:32:15.000Z",
+  "evidenceRunIds": [
+    "2026-11-15T19-33-59-424Z-matrix1",
+    "2026-11-15T19-47-31-607Z-review1"
+  ],
+  "evidence": {
+    "quotes": 27,
+    "disagreements": 3,
+    "agreement": "9/12"
+  },
+  "promptSha16": "b5467986b31bde71",
+  "sawGoldenAnswers": false,
+  "sawHumanFix": false,
+  "body": "Net revenue is the value of completed orders from real customers, minus the refunds issued on those orders, within a reporting period.\nComputation: SUM(orders.amount) for orders with status = 'completed' and customers.is_test = 0 and order_date in the period, minus SUM(refunds.amount) for refunds whose order meets those same conditions and whose refund_date is in the period. Join orders to customers on customer_id to apply is_test, region, and segment filters.\nRules:\n1. Include only orders with status = 'completed'. Exclude 'pending' and 'cancelled' orders, since pending revenue is not yet realized.\n2. Exclude all orders from customers with is_test = 1 (internal QA accounts), and exclude refunds on those orders.\n3. Refund amounts are stored as positive numbers. SUBTRACT them from revenue; never add them.\n4. Orders are dated by orders.order_date. Refunds are dated by refunds.refund_date, not by the original order's date. A refund counts in the period in which it was issued, even if its order falls in an earlier period.\n5. Only refunds on orders that pass rules 1 and 2 are counted, regardless of the refund's own date. Refunds on cancelled, pending, or test-account orders are ignored.\n6. Period filters are inclusive of both start and end dates, using ISO text comparison (e.g. order_date BETWEEN '2026-07-01' AND '2026-09-30'). If no period is requested, use all dates.\n7. Region and segment are taken from the order's customer (customers.region, customers.segment). Apply these filters to both orders and refunds through the order's customer.\n8. Compute order total and refund total as separate subqueries (or pre-aggregate) before combining them, so joining orders to refunds does not duplicate order amounts when an order has multiple refunds.\n9. Net revenue can be negative for a period if refunds issued exceed completed order value; report the value as computed without flooring at zero.",
+  "changes": [
+    "Refunds are now subtracted instead of added: 'plus refunds' contradicted the meaning of money returned to customers and was flagged by several agents.",
+    "Test accounts (is_test = 1) are now explicitly excluded, since agents disagreed on whether to include them and the definition was silent.",
+    "Pending orders are now excluded (only completed counts); previously agents included them because only cancelled was excluded.",
+    "Date handling is made explicit: orders by order_date, refunds by refund_date, replacing the ambiguous 'transaction date'.",
+    "Refunds are restricted to orders that qualify under the order rules, and refunds are tied to the customer's region and segment, to settle the disagreeing enterprise, SMB-South, and consumer-August answers.",
+    "Added guidance to aggregate orders and refunds separately to avoid join fan-out double counting.",
+    "Stated period boundaries are inclusive and that no period means all dates.",
+    "Clarified that negative net revenue is not floored."
+  ],
+  "assumptions": [
+    "Pending orders are excluded from net revenue because the revenue is not yet realized (most common convention); the evidence did not settle this.",
+    "Test accounts (is_test = 1) should be excluded from all business reporting.",
+    "Refunds are subtracted from revenue, with refund amounts stored as positive values.",
+    "Refunds are attributed to the period of refund_date (cash basis) rather than the original order's period.",
+    "Refunds on orders from an earlier period still reduce net revenue in the period they were issued, even when the original order is outside the period.",
+    "Refunds on cancelled or pending orders are ignored because those orders are not counted as revenue.",
+    "Date ranges are inclusive on both ends."
+  ]
+}

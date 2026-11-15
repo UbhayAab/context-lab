@@ -117,7 +117,7 @@ export function ContextPicker({ context, value, onChange }: { context: ContextPa
   return (
     <div className="relative">
       <PillButton onClick={() => setOpen((o) => !o)} active={open}>
-        <span className={cx('h-2 w-2 rounded-full', current?.status === 'active' ? 'bg-pass' : current?.status === 'pending_review' ? 'bg-warn' : 'bg-faint')} />
+        <span className={cx('h-2 w-2 rounded-full', current?.status === 'active' ? 'bg-pass' : current?.status === 'pending_review' ? 'bg-warn' : current?.status === 'proposed' ? 'bg-accent' : 'bg-faint')} />
         <span className="whitespace-nowrap">Context {value}</span>
         <ChevronDown className="h-3.5 w-3.5 opacity-60" />
       </PillButton>
@@ -128,7 +128,7 @@ export function ContextPicker({ context, value, onChange }: { context: ContextPa
             className={cx('flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-hover', v.version === value && 'bg-hover')}>
             <span className="flex-1">
               <span className="block text-[14px] font-medium text-ink">Net revenue {v.version}</span>
-              <span className="block text-[12px] text-muted">{versionStatusLabel[v.status] ?? v.status}</span>
+              <span className="block text-[12px] text-muted">{versionStatusLabel[v.status] ?? v.status}{'proposal' in v && v.proposal ? ' · AI-drafted' : ''}</span>
             </span>
             {v.version === value && <Check className="h-4 w-4 text-accent" />}
           </button>

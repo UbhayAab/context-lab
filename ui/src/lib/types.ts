@@ -1,3 +1,6 @@
+import type { Combined, Consensus, Feedback, Impacts, Proposal } from './types-analytics';
+export * from './types-analytics';
+
 export type Mode = 'local' | 'connected' | 'snapshot';
 export type Route = 'subscription' | 'local-bridge' | 'api-key';
 export type Allowed = 'subscription' | 'api-key' | 'partner' | 'unverified' | 'not-allowed';
@@ -43,11 +46,14 @@ export interface Status {
   mixMatrix: MixMatrix;
 }
 
+export type VersionStatus = 'active' | 'pending_review' | 'superseded' | 'proposed';
+
 export interface ArtifactVersion {
   version: string;
-  status: 'active' | 'pending_review' | 'superseded';
+  status: VersionStatus;
   body: string;
   changelog: string[] | null;
+  proposal?: Proposal | null;
 }
 
 export interface Artifact {
@@ -97,36 +103,6 @@ export interface Cell {
 }
 
 export type Variant = 'default' | 'review';
-
-export interface FeedbackQuote {
-  combo: string;
-  questionId: string;
-  text: string;
-}
-
-export interface FeedbackTopic {
-  id: string;
-  label: string;
-  fix: string;
-  mentions: number;
-  agentsRaising: string[];
-  byCombo: Record<string, number>;
-  quotes: FeedbackQuote[];
-}
-
-export interface Feedback {
-  runId: string;
-  variant: Variant;
-  contextVersion: string;
-  fixVersion: string | null;
-  answersAnalyzed: number;
-  agents: string[];
-  topics: FeedbackTopic[];
-  silentAgents: string[];
-  fixesAnticipated: number;
-  fixesTotal: number;
-  method: string;
-}
 
 export interface RunSummary {
   runId: string;
@@ -192,6 +168,9 @@ export interface Snapshot {
   runDetails: Record<string, RunDetail>;
   feedback?: Feedback | null;
   feedbackReview?: Feedback | null;
+  combined?: Combined | null;
+  consensus?: Consensus | null;
+  impacts?: Impacts | null;
 }
 
 export interface DonePayload {

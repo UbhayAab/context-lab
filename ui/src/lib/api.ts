@@ -3,7 +3,8 @@
 //   connected -> UI hosted elsewhere, bridge on this machine at 127.0.0.1:4318
 //   snapshot  -> no bridge, read-only ./data/snapshot.json
 import type {
-  ContextPayload, DonePayload, Feedback, Mode, Question, Releases, RunDetail, RunSummary, Snapshot, Status, Step, Variant,
+  Analytics, Combined, Consensus, ContextPayload, DonePayload, Feedback, Impacts, Mode, Question, Releases, RunDetail,
+  RunSummary, Snapshot, Status, Step, Variant,
 } from './types';
 
 const BRIDGE = 'http://127.0.0.1:4318';
@@ -103,6 +104,27 @@ export async function getRun(runId: string): Promise<RunDetail> {
     return d;
   }
   return get<RunDetail>(`/api/runs/${encodeURIComponent(runId)}`);
+}
+
+async function getOptional<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${base}${path}`, { headers: HEADERS });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+/** Cross-run analytics: merged matrix, agent agreement, business impact. Any part may be absent. */
+export async function getAnalytics(): Promise<Analytics> {
+  if (snapshot) {
+    return { combined: snapshot.combined ?? null, consensus: snapshot.consensus ?? null, impacts: snapshot.impacts ?? null };
+  }
+  const [combined, consensus, impacts] = await Promise.all([
+    getOptional<Combined>('/api/combined'), getOptional<Consensus>('/api/consensus'), getOptional<Impacts>('/api/impacts'),
+  ]);
+  return { combined, consensus, impacts };
 }
 
 /** What agents said about the context. `review` uses the newest complete review-variant run. */

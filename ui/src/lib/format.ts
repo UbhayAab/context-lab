@@ -108,4 +108,11 @@ export const versionStatusLabel: Record<string, string> = {
   active: 'Active',
   pending_review: 'Pending review',
   superseded: 'Superseded',
+  proposed: 'Proposed',
 };
+
+/** Signed percent for impact tables: "-40.9%". */
+export function fmtPct(n: number | null | undefined) {
+  if (n == null || Number.isNaN(n)) return '-';
+  return `${n > 0 ? '+' : n < 0 ? '-' : ''}${Math.abs(n).toFixed(1)}%`;
+}

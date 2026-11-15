@@ -1,3 +1,7 @@
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 // Context artifacts, AI Registry style refs (namespace/kind/name@version).
 // metric 1.0.0 is the realistic, subtly wrong definition most teams start with.
 // metric 1.1.0 is the reviewed fix. Ontology and skill are shared by both releases.
@@ -56,7 +60,21 @@ Rules:
   },
 };
 
-export const CONTEXT_VERSIONS = Object.keys(METRIC_VERSIONS);
+// AI-drafted proposals (harness/propose.mjs) join the registry as "proposed" versions.
+const PROPOSALS_DIR = fileURLToPath(new URL('./proposals/', import.meta.url));
+if (existsSync(PROPOSALS_DIR)) {
+  for (const f of readdirSync(PROPOSALS_DIR).filter((x) => /^\d+\.\d+\.\d+\.json$/.test(x))) {
+    const p = JSON.parse(readFileSync(join(PROPOSALS_DIR, f), 'utf8'));
+    METRIC_VERSIONS[p.version] = {
+      ref: `demo/metric/net-revenue@${p.version}`, title: 'Net revenue', status: 'proposed', body: p.body,
+      changelog: p.changes, assumptions: p.assumptions, proposal: p,
+    };
+  }
+}
+
+const semver = (v) => v.split('.').map(Number);
+export const CONTEXT_VERSIONS = Object.keys(METRIC_VERSIONS)
+  .sort((a, b) => { const [x, y] = [semver(a), semver(b)]; return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; });
 
 /** The snapshot an agent sees for one release of the metric. */
 export function renderContext(metricVersion) {

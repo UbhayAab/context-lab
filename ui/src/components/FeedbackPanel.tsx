@@ -22,6 +22,7 @@ function listAgents(combos: string[]) {
 }
 
 function headlineOf(fb: Feedback) {
+  if (fb.answersAnalyzed === 0) return `No recorded answers on context ${fb.contextVersion} in this run yet.`;
   const lead = fb.fixesAnticipated > 0
     ? `Agents raised ${fb.fixesAnticipated} of the ${fb.fixesTotal} defects before anyone fixed the definition.`
     : `No agent flagged any of the ${fb.fixesTotal} defects in context ${fb.contextVersion}.`;

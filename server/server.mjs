@@ -6,7 +6,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { approveRelease, contextPayload, feedbackPayload, listRuns, loadRun, questionsPayload } from './data.mjs';
+import { approveRelease, combinedPayload, consensusPayload, contextPayload, feedbackPayload, impactsPayload, listRuns, loadRun, questionsPayload } from './data.mjs';
 import { MIX_MATRIX, harnessStatus } from './harnesses.mjs';
 import { parseCombo } from '../harness/run.mjs';
 import { buildPrompt, createWorkspace, parseAnswer } from '../harness/workspace.mjs';
@@ -124,6 +124,9 @@ async function route(req, res) {
   if (req.method === 'GET' && pathname === '/api/context') return send(res, 200, contextPayload());
   if (req.method === 'GET' && pathname === '/api/questions') return send(res, 200, questionsPayload());
   if (req.method === 'GET' && pathname === '/api/runs') return send(res, 200, listRuns());
+  if (req.method === 'GET' && pathname === '/api/combined') return send(res, 200, combinedPayload());
+  if (req.method === 'GET' && pathname === '/api/consensus') return send(res, 200, consensusPayload());
+  if (req.method === 'GET' && pathname === '/api/impacts') return send(res, 200, impactsPayload());
   if (req.method === 'GET' && pathname === '/api/feedback') {
     const q = new URL(req.url, 'http://x').searchParams;
     const fb = feedbackPayload(q.get('runId'), q.get('version'));

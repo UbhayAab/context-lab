@@ -22,6 +22,18 @@ What it shows:
 - Harness choice changed cost, not correctness: the same GPT model read about 4.4x fewer input tokens inside Claude Code than inside Codex. Caveats: Codex also loads the author's global AGENTS.md, and effort settings differ (Codex medium, bridge maps Claude Code's default).
 - Agents can tell you what is wrong with your context. Unprompted, the Claude agents named 3 of the 4 defects the reviewed fix corrected (test accounts in 23 of 24 answers, refunds added in 20, refund date attribution in 4). The GPT agents answered without comment. Asked explicitly to flag anything wrong first (36 more runs, `--variant review`), GPT did raise issues, less consistently: test accounts in 4 of 12 answers in each harness, against 11 of 12 for Claude Haiku. Every agent still followed the definition for its answer, as instructed. The method is keyword matching, so a plain description can count as a flag; treat the counts as upper bounds. See "Agent feedback" in the app and `eval/feedback.mjs`.
 
+### The loop closing itself (AI-drafted context, measured)
+
+`harness/propose.mjs` asks Claude Sonnet to draft the next definition from evidence only: the flawed 1.0.0, 27 agent quotes and the 3 questions where agents disagreed. It never sees the golden answers or the human fix 1.1.0. The draft, 1.2.0, was then evaluated on all four agents (48 runs):
+
+- Every agent went from 0/12 to **7/12** on the AI draft, with no human writing a word of it.
+- All 5 misses are the date-filtered questions. The draft dates refunds by `refund_date` (cash basis) where finance uses the order's date, and it listed exactly that choice under "assumptions a human should confirm". One human decision separates the draft from 12/12.
+
+### Signals that need no golden answers
+
+- **Ambiguity detector** (`eval/consensus.mjs`): agents that read the same context should agree. They agreed on 9 of 12 questions on 1.0.0 and 12 of 12 on 1.1.0 and 1.2.0. Disagreement marks ambiguous context; agreement does not prove a correct policy (1.2.0 is unanimous and still wrong on dates).
+- **Business impact preview**: the agents' majority answers before and after a release, per business number. Shipping 1.1.0 changes 10 of 12 numbers (the other 2 had no majority before); all-time net revenue drops 40.9%, from 795,367.32 to 469,762.80.
+
 Not measured yet: Grok 4.7 in Grok Build (adapter built; the author's free Grok allowance ran out), OpenCode, API-key routes.
 
 ## Mix and match: what is allowed

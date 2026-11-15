@@ -1,0 +1,54 @@
+{
+  "runId": "2026-11-15T20-32-23-198Z-matrix2-ai-proposal",
+  "finishedAt": "2026-11-15T20:35:55.206Z",
+  "cells": [
+    {
+      "combo": "claude-code:haiku",
+      "contextVersion": "1.2.0",
+      "n": 12,
+      "correct": 7,
+      "accuracy": 58.3,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 15.2,
+      "medianInputTokens": 29088,
+      "medianOutputTokens": 752
+    },
+    {
+      "combo": "claude-code:sonnet",
+      "contextVersion": "1.2.0",
+      "n": 12,
+      "correct": 7,
+      "accuracy": 58.3,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 12.4,
+      "medianInputTokens": 26744,
+      "medianOutputTokens": 590
+    },
+    {
+      "combo": "codex:gpt-6.1-sol",
+      "contextVersion": "1.2.0",
+      "n": 12,
+      "correct": 7,
+      "accuracy": 58.3,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 21.1,
+      "medianInputTokens": 83216,
+      "medianOutputTokens": 346
+    },
+    {
+      "combo": "claude-code:gpt-6.1-sol@bridge",
+      "contextVersion": "1.2.0",
+      "n": 12,
+      "correct": 7,
+      "accuracy": 58.3,
+      "errors": 0,
+      "noAnswer": 0,
+      "medianSeconds": 19.3,
+      "medianInputTokens": 20554,
+      "medianOutputTokens": 341
+    }
+  ]
+}

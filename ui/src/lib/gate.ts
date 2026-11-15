@@ -65,9 +65,12 @@ export function headline(cells: Cell[], versions: string[]): string {
     const t = totals[0];
     return `${t.agents} agents answered ${t.correct} of ${t.n} questions correctly on context ${t.v}.`;
   }
-  const [first, last] = [totals[0], totals[totals.length - 1]];
-  const parts = [`Same questions, ${last.agents} agents: ${first.correct} of ${first.n} correct on context ${first.v}, ${last.correct} of ${last.n} on ${last.v}.`];
-  const contextSwing = Math.abs(last.pct - first.pct);
+  const agents = Math.max(...totals.map((t) => t.agents));
+  const scored = totals.filter((t) => t.n > 0);
+  const list = scored.map((t, i) => `${t.correct} of ${t.n} ${i === 0 ? `correct on context ${t.v}` : `on ${t.v}`}`);
+  const parts = [`Same questions, ${agents} agents: ${list.join(', ')}.`];
+  const pcts = scored.map((t) => t.pct);
+  const contextSwing = pcts.length ? Math.max(...pcts) - Math.min(...pcts) : 0;
   const agentSwing = Math.max(...totals.map((t) => t.spread));
   if (contextSwing > agentSwing) parts.push('The context release moved accuracy more than the choice of agent did.');
   else if (agentSwing > contextSwing) parts.push('The choice of agent moved accuracy more than the context release did.');

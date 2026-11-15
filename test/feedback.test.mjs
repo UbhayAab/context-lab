@@ -30,6 +30,15 @@ test('a single passing mention does not count as an anticipated fix', () => {
   assert.equal(fb.fixesAnticipated, 0);
 });
 
+test('feedback uses the newest run that answered on the analyzed version', async () => {
+  const { feedbackPayload, listRuns } = await import('../server/data.mjs');
+  const newest = listRuns().find((r) => r.status === 'complete' && r.variant === 'default');
+  const fb = feedbackPayload(null, '1.0.0', 'default');
+  assert.ok(fb.answersAnalyzed > 0, 'analyzed zero answers');
+  assert.ok(listRuns().find((r) => r.runId === fb.runId).versions.includes('1.0.0'));
+  if (!newest.versions.includes('1.0.0')) assert.notEqual(fb.runId, newest.runId);
+});
+
 test('quotes keep dates and column names intact', () => {
   const fb = analyzeFeedback([
     rec('a', 'q1', 'Refunds were filtered by refund_date between 2026-07-01 and 2026-09-30.'),

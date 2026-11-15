@@ -7,6 +7,7 @@ import { QUESTIONS } from '../eval/questions.mjs';
 import { goldenAnswers } from '../eval/golden.mjs';
 import { summarize } from '../harness/run.mjs';
 import { analyzeFeedback } from '../eval/feedback.mjs';
+import { consensus, impact } from '../eval/consensus.mjs';
 
 const RUNS_ROOT = fileURLToPath(new URL('../runs/', import.meta.url));
 const STATE_DIR = fileURLToPath(new URL('../state/', import.meta.url));
@@ -32,7 +33,7 @@ export function releaseState() {
 
 export function contextPayload() {
   const rel = releaseState();
-  const statusOf = (v) => (v === rel.active ? 'active' : v === rel.candidate ? 'pending_review' : 'superseded');
+  const statusOf = (v) => (v === rel.active ? 'active' : v === rel.candidate ? 'pending_review' : METRIC_VERSIONS[v].status === 'proposed' ? 'proposed' : 'superseded');
   const single = (a) => {
     const { path, version, kind } = splitRef(a.ref);
     return { ref: path, kind, title: a.title, versions: [{ version, status: 'active', body: a.body, changelog: null }] };
@@ -41,7 +42,14 @@ export function contextPayload() {
   return {
     artifacts: [
       { ref: metricRef.path, kind: 'metric', title: 'Net revenue',
-        versions: CONTEXT_VERSIONS.map((v) => ({ version: v, status: statusOf(v), body: METRIC_VERSIONS[v].body, changelog: METRIC_VERSIONS[v].changelog ?? null })) },
+        versions: CONTEXT_VERSIONS.map((v) => {
+          const m = METRIC_VERSIONS[v];
+          const p = m.proposal;
+          return {
+            version: v, status: statusOf(v), body: m.body, changelog: m.changelog ?? null,
+            ...(p ? { proposal: { proposedBy: p.proposedBy, basedOn: p.basedOn, createdAt: p.createdAt, assumptions: p.assumptions, evidence: p.evidence, evidenceRunIds: p.evidenceRunIds, sawGoldenAnswers: p.sawGoldenAnswers, sawHumanFix: p.sawHumanFix } } : {}),
+          };
+        }) },
       single(ONTOLOGY),
       single(SKILL),
     ],
@@ -94,33 +102,75 @@ export function loadRun(runId) {
 
 /** What agents said about a release, lined up against the reviewed fix (the candidate's changelog). */
 export function feedbackPayload(runId, version, variant = 'default') {
+  const v = version ?? releaseState().history[0]?.version ?? CONTEXT_VERSIONS[0];
+  // The newest run that actually answered on this version: a later run may cover other versions only.
   const run = runId
     ? listRuns().find((r) => r.runId === runId)
-    : listRuns().find((r) => r.status === 'complete' && r.variant === variant);
+    : listRuns().find((r) => r.status === 'complete' && r.variant === variant && r.versions.includes(v));
   if (!run) return null;
-  const v = version ?? releaseState().history[0]?.version ?? CONTEXT_VERSIONS[0];
   const fixVersion = CONTEXT_VERSIONS.find((x) => METRIC_VERSIONS[x].changelog) ?? null;
   return { runId: run.runId, variant: run.variant, fixVersion, ...analyzeFeedback(loadRun(run.runId).results, v, fixVersion ? METRIC_VERSIONS[fixVersion].changelog : []) };
 }
 
-/** Release gate: candidate must not lose to the active release on any combo or question. */
+/**
+ * Every unprompted run merged: newest record wins per (agent, context version, question).
+ * Lets versions recorded in different runs be compared, e.g. an AI proposal evaluated later.
+ */
+export function mergedResults() {
+  const latest = new Map();
+  const runs = listRuns().filter((r) => r.status === 'complete' && r.variant === 'default').reverse(); // oldest first
+  for (const run of runs) {
+    for (const r of loadRun(run.runId).results) latest.set(`${r.combo}|${r.contextVersion}|${r.questionId}`, r);
+  }
+  return [...latest.values()];
+}
+
+/** Matrix cells over the merged results, plus which run each cell came from. */
+export function combinedPayload() {
+  const results = mergedResults();
+  const source = {};
+  for (const r of results) source[`${r.combo}|${r.contextVersion}`] = r.runId;
+  return { cells: summarize(results), source, versions: [...new Set(results.map((r) => r.contextVersion))].sort(), combos: [...new Set(results.map((r) => r.combo))] };
+}
+
+export function consensusPayload() {
+  const results = mergedResults();
+  return Object.fromEntries([...new Set(results.map((r) => r.contextVersion))].sort().map((v) => [v, consensus(results, v)]));
+}
+
+/** Impact of every version change worth showing: active -> each other version, candidate -> proposals. */
+export function impactsPayload() {
+  const results = mergedResults();
+  const have = new Set(results.map((r) => r.contextVersion));
+  const rel = releaseState();
+  const pairs = [];
+  for (const v of CONTEXT_VERSIONS) if (v !== rel.active) pairs.push([rel.active, v]);
+  if (rel.candidate) for (const v of CONTEXT_VERSIONS) if (METRIC_VERSIONS[v].status === 'proposed') pairs.push([rel.candidate, v]);
+  return Object.fromEntries(pairs.filter(([a, b]) => have.has(a) && have.has(b)).map(([a, b]) => [`${a}->${b}`, impact(results, a, b)]));
+}
+
+/** Release gate: candidate must not lose to the active release on any agent or question. */
 export function evaluateGate(candidate) {
   const { active } = releaseState();
-  const run = listRuns().find((r) => r.status === 'complete' && r.variant === 'default' && r.versions.includes(active) && r.versions.includes(candidate));
-  if (!run) return { ok: false, reasons: [`No complete evaluation run covers both ${active} and ${candidate}.`], evidenceRunId: null };
-  const { results } = loadRun(run.runId);
+  const results = mergedResults();
   const key = (r) => `${r.combo}|${r.questionId}`;
   const onActive = new Map(results.filter((r) => r.contextVersion === active).map((r) => [key(r), r]));
+  const onCandidate = results.filter((r) => r.contextVersion === candidate);
+  const combos = [...new Set(onActive.size ? [...onActive.values()].map((r) => r.combo) : [])];
+  if (!onActive.size || !onCandidate.length) return { ok: false, reasons: [`No evaluation covers both ${active} and ${candidate}.`], evidenceRunId: null };
   const reasons = [];
-  for (const r of results.filter((x) => x.contextVersion === candidate)) {
+  for (const r of onCandidate) {
     const before = onActive.get(key(r));
     if (before?.correct && !r.correct) reasons.push(`${r.combo} regressed on ${r.questionId}`);
   }
-  for (const combo of run.combos) {
-    const cell = (v) => run.cells.find((c) => c.combo === combo && c.contextVersion === v);
-    if ((cell(candidate)?.correct ?? 0) < (cell(active)?.correct ?? 0)) reasons.push(`${combo} scores lower on ${candidate}`);
+  for (const combo of combos) {
+    const score = (rs) => rs.filter((r) => r.combo === combo && r.correct).length;
+    const evaluated = onCandidate.some((r) => r.combo === combo);
+    if (!evaluated) reasons.push(`${combo} has not been evaluated on ${candidate}`);
+    else if (score(onCandidate) < score([...onActive.values()])) reasons.push(`${combo} scores lower on ${candidate}`);
   }
-  return { ok: reasons.length === 0, reasons, evidenceRunId: run.runId };
+  const runIds = [...new Set(onCandidate.map((r) => r.runId))];
+  return { ok: reasons.length === 0, reasons, evidenceRunId: runIds.join(',') };
 }
 
 export function approveRelease(version, note) {

@@ -1,0 +1,64 @@
+{
+  "runId": "2026-11-15T20-32-23-198Z-matrix2-ai-proposal",
+  "startedAt": "2026-11-15T20:32:23.284Z",
+  "variant": "default",
+  "combos": [
+    {
+      "harness": "claude-code",
+      "model": "haiku",
+      "via": null,
+      "effort": null,
+      "id": "claude-code:haiku"
+    },
+    {
+      "harness": "claude-code",
+      "model": "sonnet",
+      "via": null,
+      "effort": null,
+      "id": "claude-code:sonnet"
+    },
+    {
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "via": null,
+      "effort": null,
+      "id": "codex:gpt-6.1-sol"
+    },
+    {
+      "harness": "claude-code",
+      "model": "gpt-6.1-sol",
+      "via": "bridge",
+      "effort": null,
+      "id": "claude-code:gpt-6.1-sol@bridge"
+    }
+  ],
+  "versions": [
+    "1.2.0"
+  ],
+  "questions": [
+    "q01",
+    "q02",
+    "q03",
+    "q04",
+    "q05",
+    "q06",
+    "q07",
+    "q08",
+    "q09",
+    "q10",
+    "q11",
+    "q12"
+  ],
+  "dataset": {
+    "sha16": "72dcd63bf10abb6d"
+  },
+  "context": {
+    "1.2.0": {
+      "sha16": "7fbdc54d9a989473"
+    }
+  },
+  "clients": {
+    "claude": "2.1.325 (Claude Code)"
+  },
+  "scoring": "correct if |answer - golden| <= 0.05 USD"
+}
