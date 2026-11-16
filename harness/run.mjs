@@ -19,6 +19,15 @@ import * as codex from './adapters/codex.mjs';
 import * as grok from './adapters/grok.mjs';
 
 const ADAPTERS = { [claudeCode.HARNESS]: claudeCode, [codex.HARNESS]: codex, [grok.HARNESS]: grok };
+
+// House style: plain hyphens only. Agents' long dashes are normalized when a record is written;
+// numbers, SQL and query output are left byte-for-byte.
+const LONG_DASHES = new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']', 'g');
+export const TEXT_NORMALIZATION = 'Long dashes in agent prose replaced with plain hyphens; SQL, tool output and numbers unchanged.';
+export function normalizeRecordText(rec) {
+  const fix = (s) => (typeof s === 'string' ? s.replace(LONG_DASHES, '-') : s);
+  return { ...rec, finalText: fix(rec.finalText), steps: (rec.steps ?? []).map((s) => (s.kind === 'text' ? { ...s, text: fix(s.text) } : s)) };
+}
 const RUNS_ROOT = fileURLToPath(new URL('../runs/', import.meta.url));
 const DEFAULT_TIMEOUT_MS = 300_000;
 
@@ -81,6 +90,7 @@ export async function runMatrix(opts, { onResult } = {}) {
     context: Object.fromEntries(opts.versions.map((v) => [v, { sha16: sha(renderContext(v)) }])),
     clients: { claude: cliVersion('claude', ['--version']) },
     scoring: 'correct if |answer - golden| <= 0.05 USD',
+    textNormalization: TEXT_NORMALIZATION,
   }, null, 2));
 
   const tasks = [];
@@ -102,12 +112,12 @@ export async function runMatrix(opts, { onResult } = {}) {
       ws.dispose();
     }
     const answer = parseAnswer(out.finalText);
-    const rec = {
+    const rec = normalizeRecordText({
       runId, combo: combo.id, harness: combo.harness, model: combo.model, via: combo.via,
       variant: opts.variant ?? 'default', contextVersion: version, questionId: q.id, question: q.text,
       golden: golden[q.id], answer, correct: isCorrect(answer, golden[q.id]),
       startedAt, ...out,
-    };
+    });
     results.push(rec);
     appendFileSync(join(dir, 'results.jsonl'), JSON.stringify(rec) + '\n');
     onResult?.(rec);

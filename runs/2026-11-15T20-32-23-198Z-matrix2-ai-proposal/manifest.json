@@ -60,5 +60,6 @@
   "clients": {
     "claude": "2.1.325 (Claude Code)"
   },
-  "scoring": "correct if |answer - golden| <= 0.05 USD"
+  "scoring": "correct if |answer - golden| <= 0.05 USD",
+  "textNormalization": "Long dashes in agent prose replaced with plain hyphens; SQL, tool output and numbers unchanged. Applied after recording on 2026-11-16."
 }
